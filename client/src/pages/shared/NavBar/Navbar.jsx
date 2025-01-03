@@ -1,6 +1,9 @@
+import { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../../../provider/AuthProvider';
 
 const Navbar = () => {
+  const { user } = useContext(AuthContext);
   const menu = (
     <>
       <li>
@@ -13,10 +16,10 @@ const Navbar = () => {
         <Link to='/order/salad'>Order</Link>
       </li>
       <li>
-        <Link to='/login'>Login</Link>
+        <Link to={ '/login'}>Login</Link>
       </li>
       <li>
-        <Link to='/register'>Register</Link>
+        <Link to={'/register'}>Register</Link>
       </li>
     </>
   );

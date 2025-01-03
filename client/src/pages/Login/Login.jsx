@@ -2,13 +2,19 @@ import { FaFacebook, FaGithub } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 import { MdEmail } from 'react-icons/md';
 import { IoMdEye } from 'react-icons/io';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../provider/AuthProvider';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   //useContext API
-  const { signinUser } = useContext(AuthContext);
+  const { user, signinUser } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname || '/';
+  console.log('State in the location login in page', from)
 
   const [formData, setFormData] = useState({
     email: '',
@@ -25,13 +31,35 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData.email, formData.password);
-    // signinUser(formData.email, formData.password).then((result) => {
-    //   const user = result.user;
-    //   console.log(user);
-    // });
+    //console.log(formData.email, formData.password);
+    // signinUser(formData.email, formData.password)
+    //   .then((result) => {
+    //     const newUser = result.user;
+    //     // console.log(
+    //     //   newUser.getIdTokenResult().then((data) => console.log(data.token))
+    //     // );
+    //     console.log(newUser);
+    //   })
+    //   .catch((error) => {
+    //     console.log(error.message);
+    //   });
+    const newUser = await signinUser(formData.email, formData.password);
+    if (newUser || user) {
+      toast('🦄Success Login!', {
+        position: 'top-right',
+        autoClose: 500,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      });
+
+      navigate(from, { replace: true });
+    }
   };
   return (
     <div className='font-[sans-serif]'>

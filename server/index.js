@@ -28,6 +28,8 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     const menuCollection = client.db('boss').collection('menu');
+    const reviewCollection = client.db('boss').collection('reviews');
+    const cartCollection = client.db('boss').collection('carts');
 
     //@      GET
     //@desc  Get All Menu
@@ -35,6 +37,22 @@ async function run() {
 
     app.get('/menu', async (req, res) => {
       const result = await menuCollection.find().toArray();
+      res.send(result);
+    });
+
+    //@cart collection
+    //@ POST
+    app.post('/carts', async (req, res) => {
+      const cartItem = req.body;
+      const result = await cartCollection.insertOne(cartItem);
+      res.send(result);
+    });
+
+    //@ get carts collection
+    app.get('/carts', async (req, res) => {
+      const email = req.query.email 
+      const query = {email: email}
+      const result = await cartCollection.find({email}).toArray();
       res.send(result);
     });
 
