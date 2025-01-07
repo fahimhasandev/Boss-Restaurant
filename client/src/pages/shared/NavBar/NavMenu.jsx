@@ -10,6 +10,10 @@ const NavMenu = () => {
   const [cart] = useCart();
 
   console.log(cart);
+
+
+  const
+
   const nav = (
     <>
       <li className='max-lg:border-b max-lg:py-3 px-3'>
@@ -44,7 +48,7 @@ const NavMenu = () => {
     </>
   );
   return (
-    <header className='flex bg-white border-b py-3 sm:px-6 px-4 font-[sans-serif] min-h-[75px] tracking-wide fixed z-50 w-full'>
+    <header className='flex bg-white border-b py-3 sm:px-6 px-4 font-[sans-serif] min-h-[75px] tracking-wide fixed z-50  mx-auto'>
       <div className='flex max-w-screen-xl mx-auto w-full'>
         <div className='flex flex-wrap items-center lg:gap-y-2 gap-4 w-full'>
           <a className='max-sm:hidden'>

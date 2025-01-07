@@ -30,6 +30,24 @@ async function run() {
     const menuCollection = client.db('boss').collection('menu');
     const reviewCollection = client.db('boss').collection('reviews');
     const cartCollection = client.db('boss').collection('carts');
+    const userCOllection = client.db('boss').collection('users');
+
+
+    /**
+     *  @Routes - USER
+     *  @Methods - POST
+     * 
+     * 
+     */
+
+      app.post('/users', async (req, res) => {
+        const user = req.body
+        const result = await userCOllection.insertOne(user);
+        res.send(result);
+      })
+
+
+
 
     //@      GET
     //@desc  Get All Menu
@@ -50,9 +68,9 @@ async function run() {
 
     //@ get carts collection
     app.get('/carts', async (req, res) => {
-      const email = req.query.email 
-      const query = {email: email}
-      const result = await cartCollection.find({email}).toArray();
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await cartCollection.find({ email }).toArray();
       res.send(result);
     });
 
