@@ -1,18 +1,27 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../../provider/AuthProvider';
-import { toast } from 'react-toastify';
+// import { toast } from 'react-toastify';
 import useCart from '../../../hooks/useCart';
 import { TiShoppingCart } from 'react-icons/ti';
-
+import Swal from 'sweetalert2';
 const NavMenu = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logOut } = useContext(AuthContext);
   const [cart] = useCart();
 
   console.log(cart);
 
-
-  const
+  const handleLogOut = () => {
+    logOut()
+      .then(() => {
+        Swal.fire({
+          title: 'Good job!',
+          text: 'You clicked the button!',
+          icon: 'success',
+        });
+      })
+      .catch((error) => console.log(error));
+  };
 
   const nav = (
     <>
@@ -170,10 +179,7 @@ const NavMenu = () => {
                       className='btn btn-ghost btn-circle avatar'
                     >
                       <div className='w-10 rounded-full'>
-                        <img
-                          alt='Tailwind CSS Navbar component'
-                          src='https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'
-                        />
+                        <img alt='Tailwind CSS Navbar component' src={user?.photoURL} />
                       </div>
                     </div>
                     <ul
@@ -189,12 +195,7 @@ const NavMenu = () => {
                       <li>
                         <a>Settings</a>
                       </li>
-                      <li
-                        onClick={() => {
-                          logout();
-                          toast('Logged out Seccessfullu');
-                        }}
-                      >
+                      <li onClick={handleLogOut}>
                         <Link to={'/'}>Logout</Link>
                       </li>
                     </ul>

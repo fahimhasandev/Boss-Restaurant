@@ -1,9 +1,10 @@
 import express from 'express';
 import colors from 'colors';
 import cors from 'cors';
+import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
 const app = express();
 
 const port = process.env.PORT === 'production' || 5002;
@@ -30,26 +31,93 @@ async function run() {
     const menuCollection = client.db('boss').collection('menu');
     const reviewCollection = client.db('boss').collection('reviews');
     const cartCollection = client.db('boss').collection('carts');
-    const userCOllection = client.db('boss').collection('users');
-
+    const userCollection = client.db('boss').collection('users');
 
     /**
-     *  @Routes - USER
+     *
+     * @Token
+     */
+    //middleWares
+    const verifyToken = (req, res, next) => {
+      console.log('Inside Verify Token', req.headers.authorization);
+
+      if (!req.headers.authorization) {
+        return res.status(41).send({ message: 'forbidden access' });
+      }
+
+      const token = req.headers.authorization.split(' ')[1];
+
+      // if(!token){
+      //   return res.status(41).send({ message: 'forbidden access' });
+      // }
+      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error, decoded) => {
+        if (error) {
+          return res.status(41).send({ message: 'forbidden access' });
+        }
+        req.decoded = decoded;
+      });
+
+      next();
+    };
+
+    app.post('/jwt', async (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '1h',
+      });
+
+      res.send({ token });
+    });
+
+    /**
+     *  @Routes - USERs data
      *  @Methods - POST
-     * 
-     * 
      */
 
-      app.post('/users', async (req, res) => {
-        const user = req.body
-        const result = await userCOllection.insertOne(user);
-        res.send(result);
-      })
+    app.get('/users', verifyToken, async (req, res) => {
+      const result = await userCollection.find().toArray();
+      res.send(result);
+    });
 
+    app.post('/users', async (req, res) => {
+      const user = req.body;
 
+      //insert email if user doesn't exists:
+      // you can do this many ways(1. email unique, 2. upsert 3. simple checking)
+      const query = { email: user.email };
+      const existingUser = await userCollection.findOne(query);
 
+      if (existingUser) {
+        return res.send({ message: 'User alreay exists', insertedId: null });
+      }
 
-    //@      GET
+      const result = await userCollection.insertOne(user);
+      res.send(result);
+    });
+
+    app.patch('/users/admin/:id', async (req, res) => {
+      const { id } = req.params;
+
+      const filter = { _id: new ObjectId(id) };
+
+      const updatedDoc = {
+        $set: {
+          role: 'admin',
+        },
+      };
+
+      const result = await userCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    });
+
+    app.delete('/users/:id', async (req, res) => {
+      const { id } = req.params;
+      const query = { _id: new ObjectId(id) };
+      const result = await userCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    //@      Menu
     //@desc  Get All Menu
     //@route '/menu'
 
@@ -93,5 +161,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port${port}`);
+  console.log(`Server is running on port ${port}`.blue.inverse);
 });

@@ -1,23 +1,51 @@
 import { useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash, FaRegUser } from 'react-icons/fa';
 import { MdOutlineMail } from 'react-icons/md';
 import { AuthContext } from '../../provider/AuthProvider';
 import { useForm } from 'react-hook-form';
-import {Helmet} from 'react-helmet-async'
+import { Helmet } from 'react-helmet-async';
+import Swal from 'sweetalert2';
+import useAxiosPublic from '../../hooks/useAxiosPublic';
 const Register = () => {
-  const { createUser } = useContext(AuthContext);
+  const axiosPublic = useAxiosPublic();
+
+  const { updateUserProfile, createUser } = useContext(AuthContext);
+  const nagivate = useNavigate();
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm();
 
   const onSubmit = (data) => {
-    console.log(data)
-    createUser(data.email, data.password).then( result => {
-      const loggedUser = result.useForm
-    })
+    console.log(data);
+    createUser(data.email, data.password).then((result) => {
+      const loggedUser = result.useForm;
+      console.log(loggedUser);
+      updateUserProfile(data.name, data.photoURL)
+        .then((result) => {
+          //create user entry in the database
+          const userInfo = {
+            name: data.name,
+            email: data.email,
+          };
+          axiosPublic.post('/users', userInfo).then((res) => {
+            if (res.data.insertedId) {
+              console.log('user added to the database')
+              reset();
+              Swal.fire({
+                title: 'Good job!',
+                text: 'You clicked the button!',
+                icon: 'success',
+              });
+              nagivate('/');
+            }
+          });
+        })
+        .catch((error) => console.log(error));
+    });
   };
 
   const [showPassword, setShowPassword] = useState(false);
@@ -81,6 +109,23 @@ const Register = () => {
                 {errors.name && (
                   <span>This field is required and maxlength 25</span>
                 )}
+              </div>
+              {/* photo url */}
+              <div className='form-control'>
+                <label className='text-gray-800 text-sm mb-2 block'>
+                  Photo URL
+                </label>
+                <div className='relative flex items-center'>
+                  <input
+                    name='name'
+                    type='text'
+                    {...register('photoURL', { required: true })}
+                    className='text-gray-800 bg-white border border-gray-300 w-full text-sm px-4 py-2.5 rounded-md outline-blue-500'
+                    placeholder='Enter your photo url'
+                  />
+                  <FaRegUser className='w-4 h-4 absolute right-4 text-slate-300' />
+                </div>
+                {errors.photoURL && <span>This field is required</span>}
               </div>
 
               <div className='form-control'>

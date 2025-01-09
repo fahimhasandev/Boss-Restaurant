@@ -3,13 +3,17 @@ import { FcGoogle } from 'react-icons/fc';
 import { MdEmail } from 'react-icons/md';
 import { IoMdEye } from 'react-icons/io';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useContext, useState } from 'react';
-import { AuthContext } from '../../provider/AuthProvider';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { Helmet } from 'react-helmet-async';
+import useAuth from '../../hooks/useAuth';
+import useAxiosPublic from '../../hooks/useAxiosPublic';
+import SocialLogin from '../../components/SocialLogin/SocialLogin';
 const Login = () => {
+
+
   //useContext API
-  const { user, signinUser } = useContext(AuthContext);
+  const { user, signinUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -33,18 +37,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    //console.log(formData.email, formData.password);
-    // signinUser(formData.email, formData.password)
-    //   .then((result) => {
-    //     const newUser = result.user;
-    //     // console.log(
-    //     //   newUser.getIdTokenResult().then((data) => console.log(data.token))
-    //     // );
-    //     console.log(newUser);
-    //   })
-    //   .catch((error) => {
-    //     console.log(error.message);
-    //   });
+
     const newUser = await signinUser(formData.email, formData.password);
     if (newUser || user) {
       toast('🦄Success Login!', {
@@ -61,6 +54,7 @@ const Login = () => {
       navigate(from, { replace: true });
     }
   };
+
   return (
     <>
       <Helmet>
@@ -88,18 +82,7 @@ const Login = () => {
                 </div>
 
                 {/* Social Login */}
-                <div className='space-x-10 flex justify-center mb-16 text-5xl'>
-                  <button type='button' className='border-none outline-none'>
-                    <FcGoogle />
-                  </button>
-                  <button type='button' className='border-none outline-none'>
-                    <FaFacebook />
-                  </button>
-                  <button type='button' className='border-none outline-none'>
-                    <FaGithub />
-                  </button>
-                </div>
-
+                <SocialLogin />
                 <div>
                   <label className='text-gray-800 text-xs block mb-2'>
                     Email
