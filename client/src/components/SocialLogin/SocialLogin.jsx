@@ -3,6 +3,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { useNavigate } from 'react-router-dom';
 import useAxiosPublic from '../../hooks/useAxiosPublic';
 import { FaFacebook, FaGithub } from 'react-icons/fa';
+import { GoogleAuthProvider } from 'firebase/auth';
 
 const SocialLogin = () => {
   const { signInWithGoogle } = useAuth();
@@ -13,14 +14,19 @@ const SocialLogin = () => {
   // Google Login
   const hangleGoogleSignIn = () => {
     signInWithGoogle().then((result) => {
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const token = credential.accessToken;
+      // The signed-in user info.
       const user = result.user;
 
-      console.log(user);
-      const userInfo = () => {
-        email: result.user?.email;
-        name: result.user?.displayName;
+      console.log(credential, token, user);
+
+      const userInfo = {
+        email: user?.email,
+        name: user?.displayName,
       };
 
+      console.log(userInfo);
       // use public axios to send data to backend. THis also will check if the user existed or not
       axiosPublic
         .post('/users', userInfo)

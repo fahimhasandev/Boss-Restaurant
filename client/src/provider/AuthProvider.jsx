@@ -37,13 +37,13 @@ const AuthProvider = ({ children }) => {
       }
 
       setLoading(false);
-      console.log('Current user', currentUser);
+      //console.log('Current user', currentUser);
     });
 
     return () => {
       return unSubscribe();
     };
-  }, []);
+  }, [axiosPublic]);
 
   const createUser = (email, password) => {
     setLoading(true);
