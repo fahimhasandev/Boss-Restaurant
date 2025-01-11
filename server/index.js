@@ -64,7 +64,7 @@ async function run() {
     // use varify Admin after verifyToken
     const verifyAdmin = async (req, res, next) => {
       const email = req.decoded.email;
-      console.log('Line 67:', email)
+      console.log('Line 67:', email);
       const query = { email: email };
 
       const user = await userCollection.findOne(query);
@@ -178,8 +178,8 @@ async function run() {
     });
 
     app.delete('/menu/:id', verifyToken, verifyAdmin, async (req, res) => {
-      const {id} = req.params;
-      console.log('Line 182:' , id)
+      const { id } = req.params;
+      console.log('Line 182:', id);
       const query = { _id: new ObjectId(id) };
       const result = await menuCollection.deleteOne(query);
       res.send(result);
@@ -198,6 +198,11 @@ async function run() {
       const email = req.query.email;
       const query = { email: email };
       const result = await cartCollection.find({ email }).toArray();
+      res.send(result);
+    });
+
+    app.get('/reviews', async (req, res) => {
+      const result = await reviewCollection.find().toArray();
       res.send(result);
     });
 
