@@ -39,7 +39,7 @@ async function run() {
      */
     //middleWares
     const verifyToken = (req, res, next) => {
-      console.log('Inside Verify Token', req.headers.authorization);
+      //console.log('Inside Verify Token', req.headers.authorization);
 
       if (!req.headers.authorization) {
         return res.status(401).send({ message: 'Unauthorized access' });
@@ -55,6 +55,7 @@ async function run() {
           return res.status(41).send({ message: 'Unauthorized access' });
         }
         req.decoded = decoded;
+        //console.log(decoded)
       });
 
       next();
@@ -63,6 +64,7 @@ async function run() {
     // use varify Admin after verifyToken
     const verifyAdmin = async (req, res, next) => {
       const email = req.decoded.email;
+      console.log('Line 67:', email)
       const query = { email: email };
 
       const user = await userCollection.findOne(query);
@@ -78,7 +80,7 @@ async function run() {
     app.post('/jwt', async (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '1h',
+        expiresIn: '10h',
       });
 
       res.send({ token });
@@ -121,7 +123,7 @@ async function run() {
     app.post('/users', async (req, res) => {
       const user = req.body;
 
-      console.log(user);
+      //console.log(user);
       //insert email if user doesn't exists:
       // you can do this many ways(1. email unique, 2. upsert 3. simple checking)
       const query = { email: user.email };
@@ -141,9 +143,7 @@ async function run() {
       verifyAdmin,
       async (req, res) => {
         const { id } = req.params;
-
         const filter = { _id: new ObjectId(id) };
-
         const updatedDoc = {
           $set: {
             role: 'admin',
@@ -168,6 +168,20 @@ async function run() {
 
     app.get('/menu', async (req, res) => {
       const result = await menuCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post('/menu', verifyToken, verifyAdmin, async (req, res) => {
+      const item = req.body;
+      const result = await menuCollection.insertOne(item);
+      res.send(result);
+    });
+
+    app.delete('/menu/:id', verifyToken, verifyAdmin, async (req, res) => {
+      const {id} = req.params;
+      console.log('Line 182:' , id)
+      const query = { _id: new ObjectId(id) };
+      const result = await menuCollection.deleteOne(query);
       res.send(result);
     });
 
